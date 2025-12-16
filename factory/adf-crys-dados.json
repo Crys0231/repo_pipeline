@@ -1,0 +1,9 @@
+{
+	"name": "adf-crys-dados",
+	"location": "brazilsouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "14a93757-bd71-43bd-81f0-b226a0188f71",
+		"tenantId": "643145ed-21cd-4392-8146-d7a8793dc5bf"
+	}
+}
