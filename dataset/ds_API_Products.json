@@ -1,0 +1,12 @@
+{
+	"name": "ds_API_Products",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_FakeStoreAPI",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
