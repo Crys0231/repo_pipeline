@@ -1,0 +1,20 @@
+{
+	"name": "ds_DataLake_Raw_Products",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "products.json",
+				"folderPath": "products",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {}
+	}
+}
