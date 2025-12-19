@@ -57,26 +57,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_API_Products')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_FakeStoreAPI",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "RestResource",
-				"typeProperties": {
-					"relativeUrl": "/products"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_FakeStoreAPI')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ds_API_Carts')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -89,6 +69,26 @@
 				"type": "RestResource",
 				"typeProperties": {
 					"relativeUrl": "/carts"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_FakeStoreAPI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_API_Products')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_FakeStoreAPI",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": "/products"
 				},
 				"schema": []
 			},
@@ -117,31 +117,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_DataLake_Raw_Products')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_AzureDataLakeStorage",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "products.json",
-						"folderPath": "products",
-						"fileSystem": "raw"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_AzureDataLakeStorage')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ds_DataLake_Raw_Carts')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -157,6 +132,31 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": "carts.json",
 						"folderPath": "carts",
+						"fileSystem": "raw"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_AzureDataLakeStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_DataLake_Raw_Products')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "products.json",
+						"folderPath": "products",
 						"fileSystem": "raw"
 					}
 				},
@@ -371,6 +371,86 @@
 				"[concat(variables('factoryId'), '/datasets/ds_DataLake_Raw_Carts')]",
 				"[concat(variables('factoryId'), '/datasets/ds_API_Users')]",
 				"[concat(variables('factoryId'), '/datasets/ds_DataLake_Raw_Users')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_Transform_Products')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_DataLake_Raw_Products",
+								"type": "DatasetReference"
+							},
+							"name": "dfTransformProducts"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_DataLake_Raw_Products",
+								"type": "DatasetReference"
+							},
+							"name": "sink",
+							"rejectedDataLinkedService": {
+								"referenceName": "ls_AzureDataLakeStorage",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "Select"
+						},
+						{
+							"name": "derivedColumn"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          category as string,",
+						"          description as string,",
+						"          id as short,",
+						"          image as string,",
+						"          price as double,",
+						"          rating as (count as short, rate as double),",
+						"          title as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> dfTransformProducts",
+						"dfTransformProducts select(mapColumn(",
+						"          category,",
+						"          description,",
+						"          product_id = id,",
+						"          image,",
+						"          price,",
+						"          rating,",
+						"          title",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> Select",
+						"Select derive(product_id = toInteger(product_id),",
+						"          price = toDecimal(price),",
+						"          {data_ingestão} = currentDate()) ~> derivedColumn",
+						"derivedColumn sink(allowSchemaDrift: true,",
+						"     validateSchema: true,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_DataLake_Raw_Products')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_AzureDataLakeStorage')]"
 			]
 		}
 	]
