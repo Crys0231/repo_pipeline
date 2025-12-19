@@ -1,0 +1,25 @@
+{
+	"name": "df_Transform_Products",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_DataLake_Raw_Products",
+						"type": "DatasetReference"
+					},
+					"name": "dfTransformProducts"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> dfTransformProducts"
+			]
+		}
+	}
+}
