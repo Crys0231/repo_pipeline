@@ -18,7 +18,11 @@
 						"referenceName": "ds_DataLake_Raw_Products",
 						"type": "DatasetReference"
 					},
-					"name": "sink"
+					"name": "sink",
+					"rejectedDataLinkedService": {
+						"referenceName": "ls_AzureDataLakeStorage",
+						"type": "LinkedServiceReference"
+					}
 				}
 			],
 			"transformations": [
