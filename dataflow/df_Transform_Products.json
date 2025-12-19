@@ -32,7 +32,16 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     documentForm: 'documentPerLine') ~> dfTransformProducts",
-				"dfTransformProducts select(skipDuplicateMapInputs: true,",
+				"dfTransformProducts select(mapColumn(",
+				"          category,",
+				"          description,",
+				"          product_id = id,",
+				"          image,",
+				"          price,",
+				"          rating,",
+				"          title",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> Select"
 			]
 		}
