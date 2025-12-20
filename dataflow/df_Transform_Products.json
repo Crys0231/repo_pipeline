@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ds_DataLake_Raw_Products",
+						"referenceName": "ds_DataLake_Processed_Products",
 						"type": "DatasetReference"
 					},
 					"name": "sink",
