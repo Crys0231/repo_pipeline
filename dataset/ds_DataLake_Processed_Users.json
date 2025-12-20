@@ -1,0 +1,20 @@
+{
+	"name": "ds_DataLake_Processed_Users",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "users.json",
+				"folderPath": "users",
+				"fileSystem": "processed"
+			}
+		},
+		"schema": {}
+	}
+}
