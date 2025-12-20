@@ -1,0 +1,25 @@
+{
+	"name": "df_Transform_Users",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_DataLake_Raw_Users",
+						"type": "DatasetReference"
+					},
+					"name": "dfTransformUsers"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> dfTransformUsers"
+			]
+		}
+	}
+}
